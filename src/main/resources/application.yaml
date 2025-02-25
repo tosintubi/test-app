@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: location-app
+server:
+  port: ${PORT:8080}
+
