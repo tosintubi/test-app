@@ -1,0 +1,11 @@
+docker-build-and-deploy:
+  name: Build & Deploy to Heroku
+  needs: build-and-test
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Build Docker Image
+      run: docker build -t location-service .
