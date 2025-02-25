@@ -1,0 +1,33 @@
+
+
+
+
+
+# ---- Stage 1: Build the application ----
+FROM gradle:8.5-jdk17 AS builder
+
+# Set the working directory
+WORKDIR /app
+
+# Copy Gradle files and dependencies (caching)
+COPY build.gradle.kts settings.gradle.kts gradlew ./
+COPY gradle gradle
+RUN chmod +x gradlew && ./gradlew build --no-daemon || return 0
+
+# Copy the rest of the source code and build
+COPY . .
+RUN ./gradlew clean bootJar --no-daemon
+
+# ---- Stage 2: Create lightweight runtime image ----
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Copy only the final JAR from the builder stage
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+# Expose port (match the one in your Spring Boot app)
+EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
